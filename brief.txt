@@ -1,0 +1,40 @@
+web application/stitch/projects/10991381893434821496/screens/5671271e365f4e919f08843328bcaced
+# Lumina Search - Project Brief & PRD
+
+## Project Overview
+Lumina Search (VisionRAG) is a next-generation Semantic RAG (Retrieval-Augmented Generation) image discovery platform. It enables users to find visual content using natural language concepts, styles, and image-to-image similarity rather than just metadata or tags.
+
+## Design Philosophy: Ultra-Minimalist Tech
+*   **Aesthetic**: "Less is more." High whitespace, zero unnecessary borders, and a focus on content.
+*   **Palette**: 
+    *   **Light Mode**: Pure White (#FFFFFF), Off-White Background (#F9F9F9), Dark Slate text (#111111), and Tech-Blue accent (#627295).
+    *   **Dark Mode**: Deep Black (#131313), Surface-Bright (#1A1A1A), and Muted Blue-Grey (#8292B5).
+*   **Typography**: Hanken Grotesk (Headlines) paired with Inter (Body/Interface) for a modern, engineering-led feel.
+
+## Core Features
+
+### 1. Semantic Search Core
+*   **Pill-Shaped Search Input**: A 56px height, high-focus entry point.
+*   **Hybrid Search**: Supports natural language queries (e.g., "cinematic shot of a rainy neon street") and semantic mode switching.
+*   **Image Upload**: Integrated camera action inside the search bar triggering a modal for image-based retrieval.
+
+### 2. Discovery Experience
+*   **Spacious Results Grid**: A beautiful masonry or standard grid with `gap-6` spacing.
+*   **Semantic Overlays**: Interactive hover states showing match confidence (e.g., "94% Match") and quick download actions.
+*   **Smart Suggestions**: Contextual prompt chips (e.g., "Minimalist Architecture", "Macro Texture") to guide user exploration.
+
+### 3. Image Analysis Modal
+*   **Drag-and-Drop Interaction**: Minimalist dashed-border drop zone.
+*   **File Support**: JPG, PNG, WebP (max 10MB).
+*   **Blur Backdrop**: Maintains search context while focusing on the upload task.
+
+## Technical Specifications
+*   **Framework**: React with Tailwind CSS.
+*   **Icons**: Minimalist line icons (Lucide or similar).
+*   **Responsiveness**: Fully adaptive from mobile to desktop (max-width container).
+*   **Motion**: Smooth transitions for hover states and modal entries.
+
+## Future Roadmap
+*   **Advanced Filtering**: Semantic color, orientation, and resolution filters.
+*   **User Collections**: Save discoveries to private or shared boards.
+*   **Developer API**: Documentation for integrating Lumina's semantic engine into external workflows.

@@ -1,0 +1,18 @@
+# ============================================================
+# OPTIONAL: Qdrant Vector Database via Docker
+# NOTE: Docker is NOT required for the VisionRAG MVP!
+# By default, VisionRAG runs Qdrant in embedded on-disk mode (qdrant_local_data/).
+# This compose file is provided ONLY if you prefer running a standalone Qdrant server.
+# ============================================================
+version: "3.8"
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: visionrag-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - ./qdrant_storage:/qdrant/storage
+    restart: unless-stopped

@@ -1,0 +1,58 @@
+# ============================================================
+# Environment Variables & Secrets
+# ============================================================
+.env
+*.env
+.env.*
+!.env.example
+!backend/.env.example
+
+# ============================================================
+# Dataset & Vector Data (Local only — never commit)
+# ============================================================
+data/
+qdrant_local_data/
+qdrant_storage/
+
+# ============================================================
+# Python & Virtual Environments
+# ============================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+ENV/
+.Python
+pip-wheel-metadata/
+*.pth
+.pytest_cache/
+
+# ============================================================
+# Node.js & Frontend Build Outputs
+# ============================================================
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# ============================================================
+# Operating System & IDE Files
+# ============================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+
+.cache/
+
+ui/
