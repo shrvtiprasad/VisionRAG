@@ -10,10 +10,11 @@ export default function ResultsGrid({
   latencyMs,
   searchMode,
   referenceImageId,
+  imageFile,
   onFindSimilar,
   onReset,
 }) {
-  const hasSearched = Boolean(query || referenceImageId);
+  const hasSearched = Boolean(query || referenceImageId || imageFile);
 
   // If loading, render 8 skeleton cards
   if (isSearching) {
@@ -35,7 +36,12 @@ export default function ResultsGrid({
 
   // If no results after searching
   if (hasSearched && (!results || results.length === 0)) {
-    return <EmptyState query={query || `#${referenceImageId}`} onReset={onReset} />;
+    return (
+      <EmptyState
+        query={query || (referenceImageId ? `#${referenceImageId}` : 'uploaded image')}
+        onReset={onReset}
+      />
+    );
   }
 
   // If no search executed yet, show discovery intro
@@ -43,11 +49,18 @@ export default function ResultsGrid({
     return (
       <section className="w-full text-center py-12">
         <p className="font-body text-sm text-secondary">
-          Enter any natural language description above to perform semantic image retrieval with CLIP & Qdrant.
+          Enter any natural language description above to perform semantic image retrieval with CLIP &amp; Qdrant.
         </p>
       </section>
     );
   }
+
+  // Derive results header label based on active search mode
+  const headerLabel = (() => {
+    if (searchMode === 'find-similar') return `Visually Similar to Image #${referenceImageId}`;
+    if (searchMode === 'image') return `Visually Similar to Uploaded Image`;
+    return `Results for "${query}"`;
+  })();
 
   return (
     <section className="w-full animate-fade-in">
@@ -55,11 +68,7 @@ export default function ResultsGrid({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-2 border-b border-outline-variant/30">
         <div>
           <h2 className="font-headline font-semibold text-lg md:text-xl text-on-background flex items-center gap-2">
-            <span>
-              {searchMode === 'find-similar'
-                ? `Visually Similar to Image #${referenceImageId}`
-                : `Results for "${query}"`}
-            </span>
+            <span>{headerLabel}</span>
           </h2>
           <p className="font-mono text-xs text-secondary mt-0.5">
             Retrieved {results.length} images from COCO index

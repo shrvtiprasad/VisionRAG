@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import NavBar from './components/NavBar/NavBar';
 import SearchBar from './components/SearchBar/SearchBar';
+import ImageSearchBar from './components/ImageSearchBar/ImageSearchBar';
 import SemanticChips from './components/SemanticChips/SemanticChips';
 import AIExplainPanel from './components/AIExplainPanel/AIExplainPanel';
 import ResultsGrid from './components/ResultsGrid/ResultsGrid';
@@ -9,6 +10,8 @@ import { useSearch } from './hooks/useSearch';
 
 export default function App() {
   const [isDark, setIsDark] = useState(true);
+  // 'text' | 'image' — controls which search input is shown
+  const [inputMode, setInputMode] = useState('text');
 
   const {
     query,
@@ -22,8 +25,11 @@ export default function App() {
     explanationError,
     searchMode,
     referenceImageId,
+    imageFile,
+    imagePreviewUrl,
     executeSearch,
     executeFindSimilar,
+    executeImageSearch,
     resetSearch,
   } = useSearch();
 
@@ -40,6 +46,17 @@ export default function App() {
   }, [isDark]);
 
   const toggleTheme = () => setIsDark(!isDark);
+
+  const handleTabChange = (mode) => {
+    setInputMode(mode);
+    // Clear results when switching modes so the UI is clean
+    if (mode === 'text' && searchMode === 'image') resetSearch();
+    if (mode === 'image' && searchMode === 'text') resetSearch();
+  };
+
+  const handleClearImage = () => {
+    resetSearch();
+  };
 
   return (
     <div className="bg-background text-on-background min-h-screen flex flex-col transition-colors duration-300">
@@ -61,37 +78,107 @@ export default function App() {
             Multimodal semantic search powered by CLIP embeddings, Qdrant vector retrieval, and Gemini RAG synthesis on the COCO dataset.
           </p>
 
-          {/* Search Bar */}
-          <SearchBar
-            query={query}
-            setQuery={setQuery}
-            onSearch={executeSearch}
-            isSearching={isSearching}
-          />
+          {/* ── Search Mode Tabs ───────────────────────────────────────── */}
+          <div
+            className="flex items-center gap-1 bg-surface-container-low border border-outline-variant/40 rounded-full p-1 mb-5 self-center"
+            role="tablist"
+            aria-label="Search mode"
+          >
+            <button
+              role="tab"
+              id="tab-text"
+              aria-selected={inputMode === 'text'}
+              aria-controls="panel-text"
+              onClick={() => handleTabChange('text')}
+              disabled={isSearching}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full font-body text-sm transition-all duration-200 disabled:opacity-50
+                ${inputMode === 'text'
+                  ? 'bg-surface-container-highest text-on-background shadow-sm'
+                  : 'text-secondary hover:text-on-background'
+                }`}
+            >
+              <span className="material-symbols-outlined text-base">search</span>
+              Search by Text
+            </button>
 
-          {/* Preset Semantic Chips */}
-          <SemanticChips
-            activeQuery={query}
-            onSelectChip={executeSearch}
-            disabled={isSearching}
-          />
+            <button
+              role="tab"
+              id="tab-image"
+              aria-selected={inputMode === 'image'}
+              aria-controls="panel-image"
+              onClick={() => handleTabChange('image')}
+              disabled={isSearching}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full font-body text-sm transition-all duration-200 disabled:opacity-50
+                ${inputMode === 'image'
+                  ? 'bg-surface-container-highest text-on-background shadow-sm'
+                  : 'text-secondary hover:text-on-background'
+                }`}
+            >
+              <span className="material-symbols-outlined text-base">add_photo_alternate</span>
+              Search by Image
+            </button>
+          </div>
+
+          {/* ── Text Search Panel ──────────────────────────────────────── */}
+          <div
+            id="panel-text"
+            role="tabpanel"
+            aria-labelledby="tab-text"
+            className={`w-full ${inputMode === 'text' ? 'block' : 'hidden'}`}
+          >
+            <SearchBar
+              query={query}
+              setQuery={setQuery}
+              onSearch={executeSearch}
+              isSearching={isSearching}
+            />
+
+            {/* Preset Semantic Chips */}
+            <SemanticChips
+              activeQuery={query}
+              onSelectChip={executeSearch}
+              disabled={isSearching}
+            />
+          </div>
+
+          {/* ── Image Upload Panel ─────────────────────────────────────── */}
+          <div
+            id="panel-image"
+            role="tabpanel"
+            aria-labelledby="tab-image"
+            className={`w-full ${inputMode === 'image' ? 'block' : 'hidden'}`}
+          >
+            <ImageSearchBar
+              onSearch={executeImageSearch}
+              isSearching={isSearching}
+              previewUrl={imagePreviewUrl}
+              onClear={handleClearImage}
+            />
+            <p className="font-mono text-secondary mt-3 text-xs text-center pl-6">
+              Upload any image — CLIP encodes it and finds the most visually similar COCO images.
+            </p>
+          </div>
         </section>
 
         {/* Global Error Banner */}
         {searchError && (
           <ErrorBanner
             message={searchError}
-            onRetry={() => executeSearch(query)}
+            onRetry={searchMode === 'image' && imageFile
+              ? () => executeImageSearch(imageFile)
+              : () => executeSearch(query)}
           />
         )}
 
-        {/* AI RAG Explanation Panel (Hidden until search is performed) */}
-        <AIExplainPanel
-          query={query || (referenceImageId ? `Similar to #${referenceImageId}` : '')}
-          explanation={explanation}
-          isExplaining={isExplaining}
-          error={explanationError}
-        />
+        {/* AI RAG Explanation Panel (Hidden until text search is performed) */}
+        {searchMode !== 'image' && (
+          <AIExplainPanel
+            query={query || (referenceImageId ? `Similar to #${referenceImageId}` : '')}
+            explanation={explanation}
+            isExplaining={isExplaining}
+            error={explanationError}
+          />
+        )}
 
         {/* Results Grid */}
         <ResultsGrid
@@ -101,6 +188,7 @@ export default function App() {
           latencyMs={latencyMs}
           searchMode={searchMode}
           referenceImageId={referenceImageId}
+          imageFile={imageFile}
           onFindSimilar={executeFindSimilar}
           onReset={resetSearch}
         />
@@ -117,7 +205,7 @@ export default function App() {
               lens_blur
             </span>
             <span className="font-headline font-medium text-on-background">VisionRAG</span>
-            <span>— Multimodal Search & RAG</span>
+            <span>— Multimodal Search &amp; RAG</span>
           </div>
 
           <div>© 2026 VisionRAG. Built with CLIP, Qdrant, FastAPI, and Gemini.</div>

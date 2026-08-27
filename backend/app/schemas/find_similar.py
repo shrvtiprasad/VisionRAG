@@ -13,3 +13,10 @@ class FindSimilarResponse(BaseModel):
     results: List[ImageResultItem]
     result_count: int
     latency_ms: float
+
+
+class ImageSearchResponse(BaseModel):
+    """Response for POST /api/search-by-image (uploaded image file)."""
+    results: List[ImageResultItem]
+    result_count: int
+    latency_ms: float

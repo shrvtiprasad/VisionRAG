@@ -21,7 +21,7 @@ async def lifespan(app: FastAPI):
 
     # 1. Preload CLIP model
     emb_service = get_embedding_service()
-    
+
     # 2. Connect to Vector Store & ensure collection exists
     vec_service = get_vector_store_service()
     vec_service.ensure_collection(vector_dim=emb_service.embedding_dim)

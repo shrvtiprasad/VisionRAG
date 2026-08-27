@@ -69,6 +69,33 @@ export async function getExplanation(query, results) {
 }
 
 /**
+ * Search for visually similar images by uploading an arbitrary image file.
+ * Uses CLIP image encoder → Qdrant cosine similarity on the coco_images collection.
+ * @param {File} file - Image file to search with
+ * @param {number} topK - Max results to retrieve (default: 12)
+ * @returns {Promise<{results: Array, result_count: number, latency_ms: number}>}
+ */
+export async function searchByImage(file, topK = 12) {
+  const formData = new FormData();
+  formData.append('image', file);
+  formData.append('top_k', topK);
+
+  const res = await fetch(`${API_BASE}/find-similar`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(
+      errorData.detail || `Image search failed with status ${res.status}`
+    );
+  }
+
+  return await res.json();
+}
+
+/**
  * Check backend health status.
  * @returns {Promise<Object>}
  */

@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { searchImages, findSimilarImages, getExplanation } from '../api/client';
+import { useState, useCallback, useEffect } from 'react';
+import { searchImages, findSimilarImages, getExplanation, searchByImage } from '../api/client';
 
 export function useSearch() {
   const [query, setQuery] = useState('');
@@ -7,15 +7,30 @@ export function useSearch() {
   const [latencyMs, setLatencyMs] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState(null);
-  
+
   // RAG Explanation State
   const [explanation, setExplanation] = useState('');
   const [isExplaining, setIsExplaining] = useState(false);
   const [explanationError, setExplanationError] = useState(null);
 
-  // Active mode indicator ('text' or 'find-similar')
+  // Active mode indicator: 'text' | 'find-similar' | 'image'
   const [searchMode, setSearchMode] = useState('text');
   const [referenceImageId, setReferenceImageId] = useState(null);
+
+  // Image upload state
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
+
+  // Revoke previous object URL when imageFile changes to avoid memory leaks
+  useEffect(() => {
+    if (imageFile) {
+      const url = URL.createObjectURL(imageFile);
+      setImagePreviewUrl(url);
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setImagePreviewUrl(null);
+    }
+  }, [imageFile]);
 
   /**
    * Search via natural language query
@@ -31,6 +46,7 @@ export function useSearch() {
     setExplanationError(null);
     setSearchMode('text');
     setReferenceImageId(null);
+    setImageFile(null);
 
     try {
       // 1. Fetch search results from CLIP + Qdrant
@@ -73,6 +89,7 @@ export function useSearch() {
     setExplanation('');
     setSearchMode('find-similar');
     setReferenceImageId(imageId);
+    setImageFile(null);
 
     try {
       const data = await findSimilarImages(imageId);
@@ -101,6 +118,36 @@ export function useSearch() {
     }
   }, []);
 
+  /**
+   * Search by uploading an arbitrary image file.
+   * Encodes via CLIP image encoder → Qdrant cosine similarity.
+   * @param {File} file - Image file selected by the user
+   */
+  const executeImageSearch = useCallback(async (file) => {
+    if (!file) return;
+
+    setImageFile(file);
+    setIsSearching(true);
+    setSearchError(null);
+    setExplanation('');
+    setExplanationError(null);
+    setSearchMode('image');
+    setQuery('');
+    setReferenceImageId(null);
+
+    try {
+      const data = await searchByImage(file);
+      setResults(data.results || []);
+      setLatencyMs(data.latency_ms);
+      setIsSearching(false);
+    } catch (err) {
+      console.error('[Image Search Error]', err);
+      setSearchError(err.message || 'Failed to search by image.');
+      setIsSearching(false);
+      setResults([]);
+    }
+  }, []);
+
   const resetSearch = useCallback(() => {
     setQuery('');
     setResults([]);
@@ -108,6 +155,8 @@ export function useSearch() {
     setSearchError(null);
     setLatencyMs(null);
     setSearchMode('text');
+    setReferenceImageId(null);
+    setImageFile(null);
   }, []);
 
   return {
@@ -122,8 +171,11 @@ export function useSearch() {
     explanationError,
     searchMode,
     referenceImageId,
+    imageFile,
+    imagePreviewUrl,
     executeSearch,
     executeFindSimilar,
+    executeImageSearch,
     resetSearch,
   };
 }
