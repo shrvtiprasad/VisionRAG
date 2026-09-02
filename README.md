@@ -1,4 +1,4 @@
-# VisionRAG 🔎
+# VisionRAG 
 
 **VisionRAG** is a multimodal image search and RAG project that lets you search a collection of images using either **text or another image**.
 
