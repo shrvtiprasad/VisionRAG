@@ -1,166 +1,349 @@
-# VisionRAG — Multimodal Semantic Image Search & RAG
+# VisionRAG 
 
-VisionRAG is a multimodal semantic image-search and Retrieval-Augmented Generation (RAG) system. It enables users to search an indexed corpus of the **COCO dataset** using natural language queries, retrieves semantically relevant images via **CLIP embeddings** and **Qdrant vector similarity**, and synthesizes grounded visual explanations using **Google Gemini**.
+**VisionRAG** is a multimodal image search and RAG project that lets you search a collection of images using either **text or another image**.
 
----
+It uses **CLIP** to understand the relationship between text and images, **Qdrant** to find the most similar images, and **Google Gemini** to generate explanations based on the retrieved results.
 
-## 🌟 Architecture & Pipeline
+Basically:
 
-```
-User Query (Natural Language)
-       │
-       ▼
-CLIP Text Encoder (openai/clip-vit-base-patch32)
-       │
-       ▼ (512-dim normalized vector)
-Qdrant Vector Database (Cosine Similarity ANN Search)
-       │
-       ▼ (Top-K Matches + Metadata + Captions + Categories)
-FastAPI Backend
-       │
-       ▼ (Structured Grounding Context)
-Google Gemini LLM (gemini-1.5-flash)
-       │
-       ▼ (Synthesized Explanation of Relevance)
-React 18 UI (Vite + Tailwind CSS)
-```
-
-### Why VisionRAG is a true RAG system:
-- **Retrieval:** CLIP + Qdrant retrieve relevant images and their human-annotated COCO captions and category tags.
-- **Augmentation:** Retrieved evidence is formatted into a structured context prompt.
-- **Generation:** Gemini synthesizes a concise, grounded explanation strictly based on the retrieved context (no hallucinations of images not in context).
+> **Search with words. Search with images. Get results that actually make sense.**
 
 ---
 
-## 🚀 Quick Start (Zero Docker Required!)
+## What can VisionRAG do?
 
-### 1. Prerequisites
-- Python 3.11+
-- Node.js 18+
-- (Optional) Gemini API Key from [Google AI Studio](https://aistudio.google.com/)
+### Text → Image Search
+
+Enter something like:
+
+```text
+a person riding a bicycle
+```
+
+VisionRAG converts the text into a CLIP embedding and searches the image collection for the closest matches.
+
+The results are then passed through the RAG pipeline to provide an AI-generated explanation of why the retrieved images are relevant.
+
+### 🖼️ Image → Image Search
+
+Upload an image and VisionRAG finds visually similar images from the indexed dataset.
+
+The uploaded image is converted into a CLIP image embedding and searched against the same Qdrant collection used for text search.
+
+The retrieved images can also be explained using the same AI/RAG pipeline.
 
 ---
 
-### 2. Backend Setup
+##  How it works
 
-```bash
-cd backend
+VisionRAG uses the same CLIP embedding space for both text and images.
 
-# Create and activate Python virtual environment
-python -m venv .venv
+### Text Search
 
-# Windows:
-.venv\Scripts\activate
-# Linux/macOS:
-source .venv/bin/activate
-
-# Install PyTorch (CPU or CUDA):
-# CPU:
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-# GPU (if CUDA available):
-# pip install torch torchvision
-
-# Install dependencies
-pip install -e .
-
-# Copy environment variables
-cp .env.example .env
+```text
+Text Query
+    ↓
+CLIP Text Encoder
+    ↓
+512-dimensional embedding
+    ↓
+Qdrant similarity search
+    ↓
+Top-K matching images
+    ↓
+COCO captions + categories
+    ↓
+Gemini
+    ↓
+AI explanation
 ```
 
-*(Edit `.env` if you want to add your `GEMINI_API_KEY`. If left empty, search still works with intelligent fallback explanations!)*
+### Image Search
+
+```text
+Uploaded Image
+    ↓
+CLIP Image Encoder
+    ↓
+512-dimensional embedding
+    ↓
+Qdrant similarity search
+    ↓
+Top-K similar images
+    ↓
+COCO captions + categories
+    ↓
+Gemini
+    ↓
+AI explanation
+```
+
+This means both search modes ultimately use the **same retrieval and RAG pipeline**.
 
 ---
 
-### 3. Download & Ingest COCO Dataset (Quick-Start: 500 images)
+## Why RAG?
 
-From the root directory:
+The project isn't just sending a query to an LLM and asking it to make something up.
 
-```bash
-# 1. Download 500 COCO validation images + captions (takes ~30 seconds)
-python scripts/download_coco.py --limit 500
+The process is:
 
-# 2. Ingest & Index into Qdrant (local disk storage, no Docker needed!)
-python scripts/ingest.py --limit 500 --batch-size 32
-```
+1. **Retrieve** relevant images using CLIP + Qdrant.
+2. **Augment** the results with information from the COCO dataset, such as captions and categories.
+3. **Generate** an explanation using Gemini based on that retrieved information.
 
----
-
-### 4. Run the Application
-
-**Terminal 1 — Backend (FastAPI):**
-```bash
-cd backend
-uvicorn app.main:app --reload --port 8000
-```
-*Interactive API docs available at: `http://localhost:8000/docs`*
-
-**Terminal 2 — Frontend (React + Vite):**
-```bash
-cd frontend
-npm install
-npm run dev
-```
-*Open `http://localhost:5173` in your browser!*
+This gives the LLM actual retrieved context to work with instead of relying only on its general knowledge.
 
 ---
 
-## 📊 Evaluation & Quality Benchmark
+## Tech Stack
 
-Run the retrieval benchmark to verify semantic accuracy and latency across a suite of natural language queries:
+| Part | Technology |
+|---|---|
+| Frontend | React 18, JavaScript, Vite, Tailwind CSS |
+| Backend | Python, FastAPI, Pydantic |
+| Image/Text Embeddings | CLIP (`openai/clip-vit-base-patch32`) |
+| Vector Database | Qdrant |
+| LLM | Google Gemini |
+| Dataset | COCO 2017 Validation Set |
+| Frontend Tooling | Node.js, npm |
 
-```bash
-python scripts/eval.py
-```
-
----
-
-## 🛠️ Tech Stack & Key Choices
-
-| Layer | Technology | Purpose |
-|---|---|---|
-| **Frontend** | React 18, JavaScript, Tailwind CSS, Vite | Clean UI faithfully recreating Lumina Dark Semantic design tokens |
-| **Backend** | Python 3.11, FastAPI, Pydantic | High-performance asynchronous API layer with auto-generated OpenAPI docs |
-| **Embeddings** | Hugging Face Transformers (`CLIPModel`) | Unified 512-dimensional joint text-image embedding space |
-| **Vector DB** | Qdrant (`qdrant-client`) | Local on-disk embedded vector store (no Docker required) |
-| **LLM** | Google Gemini API (`gemini-1.5-flash`) | Context-grounded RAG explanation synthesis |
-| **Dataset** | COCO 2017 Validation Set | 5,000 diverse images with human captions and category instances |
+> **Note:** Node.js is only used for the React/Vite frontend tooling. The backend itself is written in **Python + FastAPI**.
 
 ---
 
-## 📁 Repository Structure
+## 📂 Project Structure
 
-```
+```text
 VisionRAG/
-├── backend/                  # FastAPI Application
+│
+├── backend/
 │   ├── app/
-│   │   ├── api/routes/       # /search, /find-similar, /explain, /health
-│   │   ├── core/             # Configuration & dependency injection
-│   │   ├── schemas/          # Pydantic request/response models
-│   │   ├── services/         # CLIP embedding, Qdrant store, Gemini LLM
-│   │   └── main.py           # Application entrypoint & static image mount
-│   ├── tests/                # Unit & integration tests
-│   └── pyproject.toml        # Backend dependencies
+│   │   ├── api/
+│   │   │   └── routes/
+│   │   ├── core/
+│   │   ├── schemas/
+│   │   ├── services/
+│   │   │   ├── embedding/
+│   │   │   ├── vector_store/
+│   │   │   └── gemini/
+│   │   └── main.py
+│   ├── tests/
+│   └── pyproject.toml
 │
-├── frontend/                 # React SPA (Vite + Tailwind)
+├── frontend/
 │   ├── src/
-│   │   ├── components/       # NavBar, SearchBar, ResultsGrid, ImageCard, AIExplainPanel
-│   │   ├── hooks/            # useSearch custom hook
-│   │   └── api/client.js     # Typed fetch client
-│   ├── tailwind.config.js    # Lumina design tokens
-│   └── package.json
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   └── api/
+│   ├── package.json
+│   └── vite.config.js
 │
-├── scripts/                  # Offline Pipelines (Reproducible)
-│   ├── download_coco.py      # Automated COCO dataset downloader
-│   ├── ingest.py             # Batch CLIP embedding & Qdrant indexing
-│   └── eval.py               # Retrieval quality and latency benchmark
+├── scripts/
+│   ├── download_coco.py
+│   ├── ingest.py
+│   └── eval.py
 │
-├── data/                     # Local COCO dataset (Gitignored)
-├── qdrant_local_data/        # Local vector index (Gitignored, no Docker needed)
-├── docker-compose.yml        # (Optional) Docker setup if preferred
+├── data/
+├── qdrant_local_data/
+├── docker-compose.yml
+├── .gitignore
 └── README.md
 ```
 
 ---
 
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/shrvtiprasad/VisionRAG.git
+cd VisionRAG
+```
+
+---
+
+### 2. Set up the backend
+
+```bash
+cd backend
+python -m venv .venv
+```
+
+Activate the virtual environment.
+
+**Windows:**
+
+```bash
+.venv\Scripts\activate
+```
+
+**Linux/macOS:**
+
+```bash
+source .venv/bin/activate
+```
+
+Install PyTorch:
+
+**CPU:**
+
+```bash
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+```
+
+Then install the project dependencies:
+
+```bash
+pip install -e .
+```
+
+---
+
+### 3. Add your Gemini API key
+
+Create a `.env` file inside `backend/`:
+
+```env
+GEMINI_API_KEY=your_api_key_here
+```
+
+The API key is used for the AI explanation part of the application.
+
+---
+
+### 4. Download the dataset
+
+For a quick setup, VisionRAG can work with a smaller subset of COCO:
+
+```bash
+cd ..
+python scripts/download_coco.py --limit 500
+```
+
+Then generate the CLIP embeddings and index the images in Qdrant:
+
+```bash
+python scripts/ingest.py --limit 500 --batch-size 32
+```
+
+The full COCO 2017 validation set contains around **5,000 images**, but using 500 images makes it much easier to get started locally.
+
+The dataset and Qdrant files are kept out of Git using `.gitignore`.
+
+---
+
+## Running the Project
+
+### Backend
+
+Open a terminal:
+
+```bash
+cd backend
+.venv\Scripts\activate
+uvicorn app.main:app --reload --port 8000
+```
+
+Backend:
+
+```text
+http://localhost:8000
+```
+
+FastAPI docs:
+
+```text
+http://localhost:8000/docs
+```
+
+### Frontend
+
+Open another terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend:
+
+```text
+http://localhost:5173
+```
+
+---
+
+## API
+
+The backend currently exposes endpoints for:
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /health` | Check backend status |
+| `POST /search` | Text-to-image search |
+| `POST /find-similar` | Image-to-image search |
+| `POST /find-similar/{image_id}` | Find similar indexed images |
+| `POST /explain` | Generate an AI explanation |
+
+You can explore and test the API directly through the FastAPI Swagger UI:
+
+```text
+http://localhost:8000/docs
+```
+
+---
+
+## Evaluation
+
+A small evaluation script is included to test retrieval quality and latency:
+
+```bash
+python scripts/eval.py
+```
+
+This can be used to compare retrieval results across different queries and measure how quickly the system responds.
+
+---
+
+## Main Ideas Behind the Project
+
+### Shared Text + Image Embedding Space
+
+CLIP allows text and images to be represented in the same embedding space. This is what makes both text-based search and image-based search possible using the same vector database.
+
+### Semantic Search
+
+Instead of matching filenames or keywords, VisionRAG searches based on **visual and semantic similarity**.
+
+### Vector Search
+
+Qdrant stores the CLIP embeddings and performs cosine-similarity searches to retrieve the closest matches.
+
+### Grounded AI Explanations
+
+Gemini receives the retrieved dataset information as context and generates explanations based on those results.
+
+---
+
+## 📌 Current Features
+
+- 🔤 Text-to-image semantic search
+- 🖼️ Image-to-image similarity search
+- 🧠 CLIP-based multimodal embeddings
+- 🔍 Qdrant vector similarity search
+- 🤖 Gemini-powered AI explanations
+- 📚 COCO captions and category metadata
+- ⚡ FastAPI backend
+- ⚛️ React frontend
+- 📊 Retrieval evaluation
+- 💾 Local Qdrant storage
+- 🐳 Optional Docker setup
+
+---
+
 ## 📄 License
-MIT
+
+This project is licensed under the MIT License.
