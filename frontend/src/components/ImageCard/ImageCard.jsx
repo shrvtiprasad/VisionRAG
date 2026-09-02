@@ -4,12 +4,14 @@ export default function ImageCard({
   item,
   onFindSimilar,
   onSelectImage,
+  searchMode,
 }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
   const mainCaption = item.captions && item.captions.length > 0 ? item.captions[0] : '';
   const categoriesList = item.categories && item.categories.length > 0 ? item.categories : [];
+  const scoreLabel = (searchMode === 'image' || searchMode === 'find-similar') ? 'Similarity' : 'Match';
 
   return (
     <div
@@ -46,7 +48,7 @@ export default function ImageCard({
       <div className="absolute top-3 right-3 z-10">
         <div className="bg-surface-lowest/80 backdrop-blur-md px-2.5 py-1 rounded-full border border-outline-variant/60 shadow-sm">
           <span className="font-mono text-[11px] font-medium text-primary tracking-wide">
-            {item.match_percentage} Match
+            {item.match_percentage} {scoreLabel}
           </span>
         </div>
       </div>

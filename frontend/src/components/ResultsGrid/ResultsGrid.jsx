@@ -91,6 +91,7 @@ export default function ResultsGrid({
           <ImageCard
             key={item.image_id}
             item={item}
+            searchMode={searchMode}
             onFindSimilar={onFindSimilar}
           />
         ))}

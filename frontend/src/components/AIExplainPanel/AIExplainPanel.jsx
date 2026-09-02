@@ -9,8 +9,8 @@ export default function AIExplainPanel({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Hidden until a search has been performed
-  if (!query && !isExplaining && !explanation) {
+  // Hidden until an explanation is being generated or present
+  if (!isExplaining && !explanation && !error) {
     return null;
   }
 

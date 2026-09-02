@@ -126,13 +126,14 @@ export function useSearch() {
   const executeImageSearch = useCallback(async (file) => {
     if (!file) return;
 
+    const imageLabel = file.name ? `Uploaded Image (${file.name})` : 'Uploaded Image';
     setImageFile(file);
     setIsSearching(true);
     setSearchError(null);
     setExplanation('');
     setExplanationError(null);
     setSearchMode('image');
-    setQuery('');
+    setQuery(imageLabel);
     setReferenceImageId(null);
 
     try {
@@ -140,6 +141,22 @@ export function useSearch() {
       setResults(data.results || []);
       setLatencyMs(data.latency_ms);
       setIsSearching(false);
+
+      // Trigger Gemini RAG explanation for uploaded image search
+      if (data.results && data.results.length > 0) {
+        setIsExplaining(true);
+        getExplanation(imageLabel, data.results)
+          .then((expData) => {
+            setExplanation(expData.explanation);
+          })
+          .catch((err) => {
+            console.warn('[RAG Explanation Error]', err);
+            setExplanationError(err.message || 'Failed to generate explanation.');
+          })
+          .finally(() => {
+            setIsExplaining(false);
+          });
+      }
     } catch (err) {
       console.error('[Image Search Error]', err);
       setSearchError(err.message || 'Failed to search by image.');

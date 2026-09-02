@@ -170,15 +170,13 @@ export default function App() {
           />
         )}
 
-        {/* AI RAG Explanation Panel (Hidden until text search is performed) */}
-        {searchMode !== 'image' && (
-          <AIExplainPanel
-            query={query || (referenceImageId ? `Similar to #${referenceImageId}` : '')}
-            explanation={explanation}
-            isExplaining={isExplaining}
-            error={explanationError}
-          />
-        )}
+        {/* AI RAG Explanation Panel */}
+        <AIExplainPanel
+          query={query || (referenceImageId ? `Similar to #${referenceImageId}` : '')}
+          explanation={explanation}
+          isExplaining={isExplaining}
+          error={explanationError}
+        />
 
         {/* Results Grid */}
         <ResultsGrid

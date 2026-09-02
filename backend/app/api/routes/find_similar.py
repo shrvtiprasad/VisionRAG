@@ -111,6 +111,7 @@ async def search_by_uploaded_image(
 @router.post("/find-similar/{image_id}", response_model=FindSimilarResponse)
 async def find_similar_by_id_endpoint(
     image_id: int = APIPath(..., description="COCO image ID of reference image"),
+    top_k: Optional[int] = Query(None, description="Number of similar images to return"),
     vector_store: VectorStoreService = Depends(get_vector_store_service),
 ):
     """
@@ -119,12 +120,12 @@ async def find_similar_by_id_endpoint(
     """
     start_time = time.perf_counter()
     ref_id = image_id
-    top_k = settings.DEFAULT_TOP_K
+    num_top_k = top_k or settings.DEFAULT_TOP_K
 
     try:
         results = vector_store.find_similar_by_id(
             image_id=ref_id,
-            top_k=top_k,
+            top_k=num_top_k,
         )
 
         latency_ms = (time.perf_counter() - start_time) * 1000.0

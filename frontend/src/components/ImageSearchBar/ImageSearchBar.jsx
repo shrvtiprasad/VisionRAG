@@ -48,9 +48,9 @@ export default function ImageSearchBar({ onSearch, isSearching, previewUrl, onCl
     <div className="w-full flex flex-col items-center gap-3">
       {previewUrl ? (
         /* ── Preview & Re-search panel ─────────────────────────────────── */
-        <div className="w-full flex flex-col sm:flex-row items-center gap-4 bg-surface-container-low border border-outline-variant/40 rounded-2xl p-4 animate-fade-in">
+        <div className="w-full flex flex-row items-center gap-4 bg-surface-container-low/90 backdrop-blur-md border border-outline-variant/60 rounded-2xl p-3.5 sm:p-4 shadow-md animate-fade-in">
           {/* Thumbnail */}
-          <div className="relative flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden border border-outline-variant/40 bg-surface-container shadow-inner">
+          <div className="relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border border-outline-variant/60 bg-surface-container shadow-sm">
             <img
               src={previewUrl}
               alt="Uploaded image preview"
@@ -59,38 +59,42 @@ export default function ImageSearchBar({ onSearch, isSearching, previewUrl, onCl
           </div>
 
           {/* Info + actions */}
-          <div className="flex-grow flex flex-col gap-2 w-full">
-            <p className="font-mono text-xs text-secondary">
-              <span className="material-symbols-outlined text-primary text-sm align-middle mr-1"
-                style={{ fontVariationSettings: "'FILL' 1" }}>
+          <div className="flex-grow flex flex-col justify-center gap-2 min-w-0">
+            <div className="flex items-center gap-2">
+              <span
+                className="material-symbols-outlined text-emerald-400 text-lg flex-shrink-0"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
                 check_circle
               </span>
-              Image loaded — ready to search
-            </p>
+              <span className="font-headline font-medium text-xs sm:text-sm text-on-background truncate">
+                Image loaded — ready to search
+              </span>
+            </div>
 
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 type="button"
                 disabled={isSearching}
                 onClick={() => inputRef.current?.click()}
-                className="flex items-center gap-1.5 text-xs font-body bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/60 text-secondary hover:text-on-background hover:border-primary-container/60 transition-all duration-200 disabled:opacity-50"
+                className="flex items-center gap-1.5 text-xs font-body font-medium bg-surface-container-high hover:bg-surface-container-highest px-3.5 py-1.5 rounded-full border border-outline-variant/60 text-on-background transition-all duration-200 disabled:opacity-50 shadow-sm"
               >
                 <span className="material-symbols-outlined text-sm">swap_horiz</span>
-                Change image
+                <span>Change image</span>
               </button>
 
               <button
                 type="button"
                 disabled={isSearching}
                 onClick={handleClear}
-                className="flex items-center gap-1.5 text-xs font-body bg-surface-container px-3 py-1.5 rounded-full border border-outline-variant/60 text-secondary hover:text-error hover:border-error/40 transition-all duration-200 disabled:opacity-50"
+                className="flex items-center gap-1.5 text-xs font-body font-medium bg-surface-container-high hover:bg-error/15 px-3.5 py-1.5 rounded-full border border-outline-variant/60 text-secondary hover:text-error hover:border-error/40 transition-all duration-200 disabled:opacity-50 shadow-sm"
               >
                 <span className="material-symbols-outlined text-sm">close</span>
-                Clear
+                <span>Clear</span>
               </button>
 
               {isSearching && (
-                <span className="flex items-center gap-1.5 font-mono text-xs text-primary-container animate-pulse">
+                <span className="flex items-center gap-1.5 font-mono text-xs font-medium text-primary bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20 animate-pulse">
                   <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
                   Searching…
                 </span>
@@ -110,18 +114,20 @@ export default function ImageSearchBar({ onSearch, isSearching, previewUrl, onCl
           className={`w-full h-[64px] flex items-center justify-center gap-3 rounded-full border-2 border-dashed transition-all duration-300 font-body text-sm
             ${dragOver
               ? 'border-primary-container bg-primary-container/10 text-primary'
-              : 'border-outline-variant/50 bg-surface-container-lowest text-secondary hover:border-primary-container/60 hover:text-on-background hover:bg-surface-container-low'
+              : 'border-outline-variant/60 bg-surface-container-lowest text-on-background hover:border-primary-container/60 hover:bg-surface-container-low'
             }
             ${isSearching ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
         >
           <span
-            className="material-symbols-outlined text-2xl"
+            className="material-symbols-outlined text-2xl text-primary"
             style={{ fontVariationSettings: "'FILL' 0" }}
           >
             {dragOver ? 'file_upload' : 'add_photo_alternate'}
           </span>
-          <span>{dragOver ? 'Drop image here' : 'Upload image or drag & drop'}</span>
-          <span className="hidden sm:inline font-mono text-xs text-outline bg-surface-container px-2 py-0.5 rounded-full border border-outline-variant/40">
+          <span className="font-medium text-on-background">
+            {dragOver ? 'Drop image here' : 'Upload image or drag & drop'}
+          </span>
+          <span className="hidden sm:inline-flex items-center font-mono text-xs font-semibold text-primary bg-primary/10 px-2.5 py-1 rounded-full border border-primary/20">
             JPEG · PNG · WebP
           </span>
         </button>

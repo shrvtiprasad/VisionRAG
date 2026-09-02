@@ -33,10 +33,8 @@ export async function searchImages(query, topK = 12) {
  * @returns {Promise<{source_image_id: number, results: Array, result_count: number, latency_ms: number}>}
  */
 export async function findSimilarImages(imageId, topK = 12) {
-  const res = await fetch(`${API_BASE}/find-similar`, {
+  const res = await fetch(`${API_BASE}/find-similar/${imageId}?top_k=${topK}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ image_id: imageId, top_k: topK }),
   });
 
   if (!res.ok) {
