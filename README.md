@@ -21,9 +21,9 @@ Basically:
 
 ### Image-to-Image Search
 
-![Image-to-Image Search 1](screenshots/image-search-1.png)
+![Image-to-Image Search 1](screenshots/img-search-1.png)
 
-![Image-to-Image Search 2](screenshots/image-search-2.png)
+![Image-to-Image Search 2](screenshots/img-search-2.png)
 
 
 ---
