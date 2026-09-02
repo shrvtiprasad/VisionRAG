@@ -1,4 +1,4 @@
-# VisionRAG 
+# VisionRAG 🔎
 
 **VisionRAG** is a multimodal image search and RAG project that lets you search a collection of images using either **text or another image**.
 
@@ -10,7 +10,25 @@ Basically:
 
 ---
 
-## What can VisionRAG do?
+## 📸 Demo
+
+### Text-to-Image Search
+
+![Text-to-Image Search 1](screenshots/text-search-1.png)
+
+![Text-to-Image Search 2](screenshots/text-search-2.png)
+
+
+### Image-to-Image Search
+
+![Image-to-Image Search 1](screenshots/image-search-1.png)
+
+![Image-to-Image Search 2](screenshots/image-search-2.png)
+
+
+---
+
+##  What can VisionRAG do?
 
 ### Text → Image Search
 
@@ -24,7 +42,7 @@ VisionRAG converts the text into a CLIP embedding and searches the image collect
 
 The results are then passed through the RAG pipeline to provide an AI-generated explanation of why the retrieved images are relevant.
 
-### 🖼️ Image → Image Search
+### Image → Image Search
 
 Upload an image and VisionRAG finds visually similar images from the indexed dataset.
 
@@ -153,7 +171,7 @@ VisionRAG/
 
 ---
 
-## Getting Started
+##  Getting Started
 
 ### 1. Clone the repository
 
@@ -234,7 +252,7 @@ The dataset and Qdrant files are kept out of Git using `.gitignore`.
 
 ---
 
-## Running the Project
+##  Running the Project
 
 ### Backend
 
@@ -276,7 +294,7 @@ http://localhost:5173
 
 ---
 
-## API
+## 🔌 API
 
 The backend currently exposes endpoints for:
 
@@ -296,7 +314,7 @@ http://localhost:8000/docs
 
 ---
 
-## Evaluation
+## 📊 Evaluation
 
 A small evaluation script is included to test retrieval quality and latency:
 
@@ -308,7 +326,7 @@ This can be used to compare retrieval results across different queries and measu
 
 ---
 
-## Main Ideas Behind the Project
+##  Main Ideas Behind the Project
 
 ### Shared Text + Image Embedding Space
 
