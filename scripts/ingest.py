@@ -186,7 +186,7 @@ def run_ingestion(data_dir: Path, limit: int = 500, batch_size: int = 32):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Ingest COCO images and index into Qdrant")
-    parser.add_argument("--limit", type=int, default=500, help="Max images to index (default: 500)")
+    parser.add_argument("--limit", type=int, default=500, help="Max images to index (use 5000 or 0 for all images, default: 500)")
     parser.add_argument("--batch-size", type=int, default=32, help="CLIP inference batch size (default: 32)")
     parser.add_argument("--data-dir", type=str, default=None, help="COCO data directory (defaults to ../data/coco)")
     args = parser.parse_args()

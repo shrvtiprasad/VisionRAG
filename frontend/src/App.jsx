@@ -19,6 +19,7 @@ export default function App() {
     results,
     latencyMs,
     isSearching,
+    hasSearched,
     searchError,
     explanation,
     isExplaining,
@@ -182,6 +183,7 @@ export default function App() {
         <ResultsGrid
           results={results}
           isSearching={isSearching}
+          hasSearched={hasSearched}
           query={query}
           latencyMs={latencyMs}
           searchMode={searchMode}

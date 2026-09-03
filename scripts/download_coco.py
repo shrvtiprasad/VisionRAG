@@ -74,7 +74,9 @@ def download_coco(data_dir: Path, limit: int = 500, full_zip: bool = False):
         with open(captions_json_path, "r", encoding="utf-8") as f:
             coco_data = json.load(f)
 
-        images = coco_data.get("images", [])[:limit]
+        images = coco_data.get("images", [])
+        if limit and limit > 0:
+            images = images[:limit]
         downloaded = 0
         skipped = 0
 

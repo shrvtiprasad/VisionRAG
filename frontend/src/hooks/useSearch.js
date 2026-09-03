@@ -6,6 +6,7 @@ export function useSearch() {
   const [results, setResults] = useState([]);
   const [latencyMs, setLatencyMs] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const [searchError, setSearchError] = useState(null);
 
   // RAG Explanation State
@@ -41,6 +42,7 @@ export function useSearch() {
 
     setQuery(trimmed);
     setIsSearching(true);
+    setHasSearched(true);
     setSearchError(null);
     setExplanation('');
     setExplanationError(null);
@@ -85,6 +87,7 @@ export function useSearch() {
     if (!imageId) return;
 
     setIsSearching(true);
+    setHasSearched(true);
     setSearchError(null);
     setExplanation('');
     setSearchMode('find-similar');
@@ -129,6 +132,7 @@ export function useSearch() {
     const imageLabel = file.name ? `Uploaded Image (${file.name})` : 'Uploaded Image';
     setImageFile(file);
     setIsSearching(true);
+    setHasSearched(true);
     setSearchError(null);
     setExplanation('');
     setExplanationError(null);
@@ -174,6 +178,7 @@ export function useSearch() {
     setSearchMode('text');
     setReferenceImageId(null);
     setImageFile(null);
+    setHasSearched(false);
   }, []);
 
   return {
@@ -182,6 +187,7 @@ export function useSearch() {
     results,
     latencyMs,
     isSearching,
+    hasSearched,
     searchError,
     explanation,
     isExplaining,

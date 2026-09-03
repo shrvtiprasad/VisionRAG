@@ -6,6 +6,7 @@ import EmptyState from '../EmptyState/EmptyState';
 export default function ResultsGrid({
   results,
   isSearching,
+  hasSearched,
   query,
   latencyMs,
   searchMode,
@@ -14,7 +15,6 @@ export default function ResultsGrid({
   onFindSimilar,
   onReset,
 }) {
-  const hasSearched = Boolean(query || referenceImageId || imageFile);
 
   // If loading, render 8 skeleton cards
   if (isSearching) {

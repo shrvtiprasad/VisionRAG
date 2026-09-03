@@ -6,7 +6,7 @@ from app.schemas.search import ImageResultItem
 
 class LLMService:
     """
-    RAG Generation Service powered by Gemini API.
+    RAG Generation Service powered by Gemini API using Google's google-genai SDK.
     Synthesizes retrieved visual metadata (COCO captions, objects, similarity scores)
     into a concise, grounded explanation of why the results match the query.
     """
@@ -22,12 +22,11 @@ class LLMService:
             return
         if self.api_key:
             try:
-                import google.generativeai as genai
-                genai.configure(api_key=self.api_key)
-                self._client = genai.GenerativeModel(self.model_name)
-                print(f"[LLMService] Gemini model '{self.model_name}' configured successfully.")
+                from google import genai
+                self._client = genai.Client(api_key=self.api_key)
+                print(f"[LLMService] Gemini client initialized with model '{self.model_name}'.")
             except Exception as e:
-                print(f"[LLMService] Failed to initialize Gemini API: {e}")
+                print(f"[LLMService] Failed to initialize Gemini API client: {e}")
                 self._client = None
         else:
             print("[LLMService] No GEMINI_API_KEY provided. Operating in fallback explanation mode.")
@@ -36,6 +35,7 @@ class LLMService:
     def explain(self, query: str, results: List[ImageResultItem]) -> str:
         """
         Generate a grounded explanation based on retrieved COCO captions and objects.
+        Supports both natural language queries and image-to-image similarity queries.
         """
         self._init_gemini()
 
@@ -61,19 +61,22 @@ The vector search engine retrieved the following top images from the COCO datase
 {context_block}
 
 Task:
-In 2 to 3 concise, insightful sentences, explain why these retrieved images are semantically relevant to the user's query "{query}".
-Highlight the key visual concepts, subjects, or contexts that connect the search terms to the retrieved imagery.
+In 2 to 3 concise, insightful sentences, explain why these retrieved images are semantically relevant to the search context "{query}".
+Highlight the key visual concepts, subjects, or contexts that connect the search context to the retrieved imagery.
 Do not invent any facts not present in the captions or categories provided. Be direct, clear, and professional.
 """
             try:
-                response = self._client.generate_content(prompt)
+                response = self._client.models.generate_content(
+                    model=self.model_name,
+                    contents=prompt,
+                )
                 if response and response.text:
                     return response.text.strip()
             except Exception as e:
                 print(f"[LLMService] Gemini API call error: {e}")
                 # Fallback to smart template synthesis
 
-        # Deterministic grounded fallback synthesis (used when API key is not yet set or rate limited)
+        # Deterministic grounded fallback synthesis (used when API key is not set or API error occurs)
         top_categories = set()
         for item in results[:4]:
             top_categories.update(item.categories)

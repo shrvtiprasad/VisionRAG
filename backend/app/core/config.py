@@ -13,7 +13,7 @@ class Settings(BaseSettings):
 
     # Gemini LLM API Key (optional during dev; fallback used if absent)
     GEMINI_API_KEY: Optional[str] = None
-    GEMINI_MODEL: str = "gemini-1.5-flash"
+    GEMINI_MODEL: str = "gemini-3.6-flash"
 
     # Qdrant Vector Store configuration
     # If QDRANT_PATH is provided, Qdrant runs in embedded local disk mode (No Docker needed!)
