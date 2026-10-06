@@ -21,16 +21,22 @@ class EmbeddingService:
         self._dim = 512
 
     def load(self):
-        """Load CLIP model and processor."""
+        """Load CLIP model and processor with low memory optimizations."""
         if self.model is None:
+            import gc
+            torch.set_num_threads(1)
             print(
                 f"[EmbeddingService] Loading CLIP model "
-                f"'{self.model_name}' onto device '{self.device}'..."
+                f"'{self.model_name}' onto device '{self.device}' (low memory mode)..."
             )
 
             self.processor = CLIPProcessor.from_pretrained(self.model_name)
-            self.model = CLIPModel.from_pretrained(self.model_name).to(self.device)
+            self.model = CLIPModel.from_pretrained(
+                self.model_name,
+                low_cpu_mem_usage=True
+            ).to(self.device)
             self.model.eval()
+            gc.collect()
 
             self._dim = self.model.projection_dim
 

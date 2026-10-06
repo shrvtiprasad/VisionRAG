@@ -8,11 +8,12 @@
 !backend/.env.example
 
 # ============================================================
-# Dataset & Vector Data (Local only — never commit)
+# Dataset & Vector Data (tracked for deployment)
 # ============================================================
-data/
-qdrant_local_data/
-qdrant_storage/
+*.zip
+data/annotations_trainval2017.zip
+data/val2017.zip
+
 
 # ============================================================
 # Python & Virtual Environments

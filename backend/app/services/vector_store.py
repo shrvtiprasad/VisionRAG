@@ -161,11 +161,20 @@ class VectorStoreService:
                 f"Image ID {image_id} not found in index."
             )
 
-        results = self.client.recommend(
-            collection_name=self.collection_name,
-            positive=[image_id],
-            limit=top_k,
-        )
+        if hasattr(self.client, "recommend"):
+            results = self.client.recommend(
+                collection_name=self.collection_name,
+                positive=[image_id],
+                limit=top_k,
+            )
+        else:
+            query_res = self.client.query_points(
+                collection_name=self.collection_name,
+                query=points[0].vector,
+                limit=top_k + 1,
+                with_payload=True,
+            )
+            results = query_res.points
 
         items: List[ImageResultItem] = []
 

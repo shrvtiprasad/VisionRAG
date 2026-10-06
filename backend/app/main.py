@@ -69,12 +69,17 @@ app.include_router(search.router, prefix=settings.API_V1_PREFIX)
 app.include_router(find_similar.router, prefix=settings.API_V1_PREFIX)
 app.include_router(explain.router, prefix=settings.API_V1_PREFIX)
 
-
-@app.get("/")
-async def root():
-    return {
-        "project": settings.PROJECT_NAME,
-        "version": settings.VERSION,
-        "docs_url": "/docs",
-        "health_check": f"{settings.API_V1_PREFIX}/health",
-    }
+# Mount frontend dist static build if present (for single-service deployment)
+frontend_dist = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
+if frontend_dist.exists():
+    print(f"[Main] Mounting production React frontend from: {frontend_dist}")
+    app.mount("/", StaticFiles(directory=str(frontend_dist), html=True), name="frontend")
+else:
+    @app.get("/")
+    async def root():
+        return {
+            "project": settings.PROJECT_NAME,
+            "version": settings.VERSION,
+            "docs_url": "/docs",
+            "health_check": f"{settings.API_V1_PREFIX}/health",
+        }
